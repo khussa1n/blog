@@ -17,7 +17,7 @@
 
     ```bash
     git clone https://github.com/khussa1n/blog.git
-    cd repository
+    cd blog
     ```
 
 2. **Start Docker Compose**
