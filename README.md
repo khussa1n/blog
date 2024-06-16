@@ -22,7 +22,7 @@
 
 2. **Start Docker Compose**
 
-    Выполните следующую команду для создания и запуска контейнеров приложения и базы данных:
+    Выполните следующую команду для создания и запуска контейнера базы данных:
     ```bash
     docker-compose up -d --build
     ```
@@ -40,8 +40,8 @@
 
 Когда вы закончите работу с проектом, вы можете остановить Docker Compose containers с помощью:
    
-    ```bash
-    docker-compose down
-    ```
+```bash
+docker-compose down
+```
 
 <img alt="DB diagram" src="schema.png"/>
