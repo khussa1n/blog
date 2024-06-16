@@ -16,7 +16,7 @@
 1. **Clone the repository**
 
     ```bash
-    git clone https://github.com/username/repository.git
+    git clone https://github.com/khussa1n/blog.git
     cd repository
     ```
 
