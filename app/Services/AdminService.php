@@ -19,29 +19,4 @@ class AdminService
 
         return compact('userRoles', 'userPermissions');
     }
-
-    public function getArticles($perPage)
-    {
-        $query = Article::query();
-        $totalItems = $query->count();
-        $articles = $query
-            ->with('user', 'category')
-            ->orderBy('updated_at', 'desc')
-            ->paginate($perPage);
-
-        return compact('articles', 'totalItems');
-    }
-
-    public function getUsers($perPage)
-    {
-        $query = User::query();
-        $totalItems = $query->count();
-        $users = $query
-            ->orderBy('updated_at', 'desc')
-            ->withCount('articles')
-            ->paginate($perPage);
-        $users->load('roles');
-
-        return compact('users', 'totalItems');
-    }
 }

@@ -67,6 +67,18 @@ class ArticleService
         $article->delete();
     }
 
+    public function getArticles($perPage)
+    {
+        $query = Article::query();
+        $totalItems = $query->count();
+        $articles = $query
+            ->with('user', 'category')
+            ->orderBy('updated_at', 'desc')
+            ->paginate($perPage);
+
+        return compact('articles', 'totalItems');
+    }
+
     public function getUserArticles(User $user, string $status = null, int $perPage = 10)
     {
         $query = Article::query()->where('user_id', $user->id);

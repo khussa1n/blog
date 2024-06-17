@@ -27,4 +27,17 @@ class UserService
     {
         Auth::guard('web')->logout();
     }
+
+    public function getUsers($perPage)
+    {
+        $query = User::query();
+        $totalItems = $query->count();
+        $users = $query
+            ->orderBy('updated_at', 'desc')
+            ->withCount('articles')
+            ->paginate($perPage);
+        $users->load('roles');
+
+        return compact('users', 'totalItems');
+    }
 }
