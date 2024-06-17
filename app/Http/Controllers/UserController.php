@@ -2,17 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Article;
+use App\Http\Requests\User\CreateUserRequest;
+use App\Http\Requests\User\LoginUserRequest;
 use App\Models\User;
+use App\Services\UserService;
+use App\Services\ArticleService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
+    protected $userService;
+    protected $articleService;
+
+    public function __construct(UserService $userService, ArticleService $articleService)
+    {
+        $this->userService = $userService;
+        $this->articleService = $articleService;
+    }
+
     /**
-     * Display a listing of the resource.
+     * Display the join form.
      */
     public function join()
     {
@@ -20,7 +30,7 @@ class UserController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
+     * Display the login form.
      */
     public function login()
     {
@@ -28,87 +38,56 @@ class UserController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created user in storage.
      */
-    public function joinStore(Request $request)
+    public function joinStore(CreateUserRequest $request)
     {
-        $request->validate([
-            'full_name' => ['required', 'string', 'max:255', 'min:3'],
-            'nickname' => ['required', 'string', 'max:255', 'min:3', 'unique:users'],
-            'email' => 'required|email|unique:users',
-            'password' => ['required', 'min:8', 'confirmed', Password::defaults()],
-        ]);
+        $user = $this->userService->createUser($request->only(['full_name', 'nickname', 'email', 'password']));
+        Auth::login($user);
 
-        $user = User::create([
-            'full_name' => $request->full_name,
-            'nickname' => $request->nickname,
-            'email' => $request->email,
-            'password' => Hash::make($request->password)
-        ]);
-
-        auth()->login($user);
-
-        return to_route('articles.index');
+        return redirect()->route('articles.index');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Handle user login.
      */
-    public function loginStore(Request $request)
+    public function loginStore(LoginUserRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:8|string',
-        ]);
-
-        if (Auth::guard('web')->attempt(['email' => $request->email, 'password' => $request->password]))
-        {
+        if ($this->userService->login($request->only('email', 'password'))) {
             return redirect()->intended(route('articles.index'));
         }
-        else
-        {
-            return back()->withErrors([
-                'email' => 'The provided credentials do not match our records.',
-            ]);
-        }
+
+        return back()->withErrors(['email' => 'The provided credentials do not match our records.']);
     }
 
+    /**
+     * Handle user logout.
+     */
     public function logout(Request $request)
     {
-        Auth::guard('web')->logout();
+        $this->userService->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return to_route('articles.index');
+
+        return redirect()->route('articles.index');
     }
 
+    /**
+     * Display user profile.
+     */
     public function profile(string $nickname)
     {
         $perPage = request()->input('per_page', 10);
-
         $user = User::where('nickname', $nickname)->firstOrFail();
+        $authUser = auth()->user();
 
-        $query = Article::query()->where('user_id', $user->id);
-
-        $countQuery = clone $query;
-
-        if (!auth()->check())
-        {
-            $articles = $query
-                ->where('status', 'published')
-                ->orderBy('updated_at', 'desc')
-                ->paginate($perPage);
-
-            $totalItems = $countQuery->where('status', 'published')->count();
-        }
-        else if (auth()->user()->nickname == $nickname || auth()->user()->hasRole('admin')
-            || auth()->user()->hasRole('moderator'))
-        {
-            $articles = $query
-                ->orderBy('updated_at', 'desc')
-                ->paginate($perPage);
-
-            $totalItems = $countQuery->count();
+        if (!$authUser) {
+            $articles = $this->articleService->getUserArticles($user, 'published', $perPage);
+            $totalItems = $this->articleService->countUserArticles($user, 'published');
+        } else if ($authUser->nickname == $nickname || $authUser->hasRole('admin') || $authUser->hasRole('moderator')) {
+            $articles = $this->articleService->getUserArticles($user, null, $perPage);
+            $totalItems = $this->articleService->countUserArticles($user, null);
         }
 
         $role = $user->roles->first()->name ?? 'Пользователь';
@@ -116,3 +95,4 @@ class UserController extends Controller
         return view('profile.profile', compact('user', 'articles', 'role', 'totalItems'));
     }
 }
+

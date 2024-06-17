@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
+use App\Services\CategoryService;
 
-$categories = app(CategoryController::class)->getCategories();
+$categories = app(CategoryService::class)->getAllCategories();
 
 $currentSlug = request()->segment(1);
 $segment2 = request()->segment(2);

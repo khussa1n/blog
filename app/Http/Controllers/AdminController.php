@@ -2,58 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Article;
-use App\Models\User;
+use App\Services\AdminService;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
+    protected $adminService;
+
+    public function __construct(AdminService $adminService)
+    {
+        $this->adminService = $adminService;
+    }
+
     public function index()
     {
+        $user = Auth::user();
+        $data = $this->adminService->getUserRolesAndPermissions($user);
 
-        $user = auth()->user();
-
-        if ($user->roles()->exists()) {
-            $userRoles = $user->roles()->pluck('name')->toArray();
-            $userPermissions = $user->permissions()->pluck('name')->toArray();
-        } else {
-            $userRoles = [];
-            $userPermissions = [];
-        }
-
-        return view('admin.index', compact('userRoles', 'userPermissions'));
+        return view('admin.index', $data);
     }
 
     public function articlesIndex()
     {
         $perPage = request()->input('per_page', 10);
+        $data = $this->adminService->getArticles($perPage);
 
-        $query = Article::query();
-
-        $totalItems = $query->count();
-
-        $articles = $query
-            ->with('user', 'category')
-            ->orderBy('updated_at', 'desc')
-            ->paginate($perPage);
-
-        return view('admin.articles.index', compact('articles', 'totalItems'));
+        return view('admin.articles.index', $data);
     }
 
     public function usersIndex()
     {
         $perPage = request()->input('per_page', 10);
+        $data = $this->adminService->getUsers($perPage);
 
-        $query = User::query();
-
-        $totalItems = $query->count();
-
-        $users = $query
-            ->orderBy('updated_at', 'desc')
-            ->withCount('articles')
-            ->paginate($perPage);
-
-        $users->load('roles');
-
-        return view('admin.users.index', compact('users', 'totalItems'));
+        return view('admin.users.index', $data);
     }
 }
