@@ -7,7 +7,8 @@ use App\Models\User;
 
 class AdminController extends Controller
 {
-    public function index() {
+    public function index()
+    {
 
         $user = auth()->user();
 
@@ -26,25 +27,33 @@ class AdminController extends Controller
     {
         $perPage = request()->input('per_page', 10);
 
-        $articles = Article::query()
+        $query = Article::query();
+
+        $totalItems = $query->count();
+
+        $articles = $query
             ->with('user', 'category')
             ->orderBy('updated_at', 'desc')
             ->paginate($perPage);
 
-        return view('admin.articles.index', compact('articles'));
+        return view('admin.articles.index', compact('articles', 'totalItems'));
     }
 
     public function usersIndex()
     {
         $perPage = request()->input('per_page', 10);
 
-        $users = User::query()
+        $query = User::query();
+
+        $totalItems = $query->count();
+
+        $users = $query
             ->orderBy('updated_at', 'desc')
             ->withCount('articles')
             ->paginate($perPage);
 
         $users->load('roles');
 
-        return view('admin.users.index', compact('users'));
+        return view('admin.users.index', compact('users', 'totalItems'));
     }
 }

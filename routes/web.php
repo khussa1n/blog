@@ -11,13 +11,15 @@ Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('art
 Route::get('{slug}/articles', [ArticleController::class, 'index'])->where('slug', '[a-zA-Z0-9-]+');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/articles/create', [ArticleController::class, 'create'])->name('articles.create');
-    Route::post('/articles', [ArticleController::class, 'store'])->name('articles.store');
-    Route::get('/articles/{article}/edit', [ArticleController::class, 'edit'])->name('articles.edit');
-    Route::patch('/articles/{article}', [ArticleController::class, 'update'])->name('articles.update');
-    Route::delete('/articles/{article}', [ArticleController::class, 'destroy'])->name('articles.destroy');
-    Route::patch('/articles/{article}/archive', [ArticleController::class, 'archive'])->name('articles.archive');
-    Route::patch('/articles/{article}/publish', [ArticleController::class, 'publish'])->name('articles.publish');
+    Route::prefix('articles')->group(function () {
+        Route::get('/create', [ArticleController::class, 'create'])->name('articles.create');
+        Route::post('/', [ArticleController::class, 'store'])->name('articles.store');
+        Route::get('/{article}/edit', [ArticleController::class, 'edit'])->name('articles.edit');
+        Route::patch('/{article}', [ArticleController::class, 'update'])->name('articles.update');
+        Route::delete('/{article}', [ArticleController::class, 'destroy'])->name('articles.destroy');
+        Route::patch('/{article}/archive', [ArticleController::class, 'archive'])->name('articles.archive');
+        Route::patch('/{article}/publish', [ArticleController::class, 'publish'])->name('articles.publish');
+    });
 
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 

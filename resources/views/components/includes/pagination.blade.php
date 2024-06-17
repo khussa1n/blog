@@ -1,9 +1,9 @@
-@if($items->count() > 5  )
+@if($totalItems > 5)
     <div class="w-fit mx-auto h-fit mt-5 bg-white py-2 px-3 shadow flex gap-3 items-center justify-center">
         @if ($items->onFirstPage())
             <span class="px-3 py-1 bg-gray-200 text-gray-600">Предыдущий</span>
         @else
-            <a href="{{ $items->previousPageUrl() }}" class="px-3 py-1 bg-cyan-500 text-white">Предыдущий</a>
+            <a href="{{ $items->appends(request()->query())->previousPageUrl() }}" class="px-3 py-1 bg-cyan-500 text-white">Предыдущий</a>
         @endif
 
         <ul class="flex items-center">
@@ -12,14 +12,14 @@
                     <li class="px-3 py-1 bg-cyan-500 text-white">{{ $page }}</li>
                 @else
                     <li>
-                        <a href="{{ $url }}" class="block px-3 py-1 bg-gray-200 hover:text-cyan-500 text-gray-600 ">{{ $page }}</a>
+                        <a href="{{ $url }}&per_page={{ request()->input('per_page', 10) }}" class="block px-3 py-1 bg-gray-200 hover:text-cyan-500 text-gray-600 ">{{ $page }}</a>
                     </li>
                 @endif
             @endforeach
         </ul>
 
         @if ($items->hasMorePages())
-            <a href="{{ $items->nextPageUrl() }}" class="px-3 py-1 bg-cyan-500 text-white">Следующий</a>
+            <a href="{{ $items->appends(request()->query())->nextPageUrl() }}" class="px-3 py-1 bg-cyan-500 text-white">Следующий</a>
         @else
             <span class="px-3 py-1 bg-gray-200 text-gray-600">Следующий</span>
         @endif

@@ -77,16 +77,4 @@ class User extends Authenticatable
         }
         return false;
     }
-
-    public function assignRole($role)
-    {
-        $role = Role::where('name', $role)->first();
-        return $this->roles()->attach($role);
-    }
-
-//    public function givePermissionTo($permission)
-//    {
-//        $permission = Permission::where('name', $permission)->first();
-//        return $this->permissions()->attach($permission);
-//    }
 }

@@ -61,9 +61,12 @@ class UserController extends Controller
             'password' => 'required|min:8|string',
         ]);
 
-        if (Auth::guard('web')->attempt(['email' => $request->email, 'password' => $request->password])) {
+        if (Auth::guard('web')->attempt(['email' => $request->email, 'password' => $request->password]))
+        {
             return redirect()->intended(route('articles.index'));
-        } else {
+        }
+        else
+        {
             return back()->withErrors([
                 'email' => 'The provided credentials do not match our records.',
             ]);
@@ -85,17 +88,31 @@ class UserController extends Controller
 
         $user = User::where('nickname', $nickname)->firstOrFail();
 
-        if (!auth()->check()) {
-            $articles = Article::where('user_id', $user->id)
+        $query = Article::query()->where('user_id', $user->id);
+
+        $countQuery = clone $query;
+
+        if (!auth()->check())
+        {
+            $articles = $query
                 ->where('status', 'published')
                 ->orderBy('updated_at', 'desc')
                 ->paginate($perPage);
-        } else if (auth()->user()->nickname == $nickname || auth()->user()->hasRole('admin') || auth()->user()->hasRole('moderator')) {
-            $articles = Article::where('user_id', $user->id)->orderBy('updated_at', 'desc')->paginate($perPage);
+
+            $totalItems = $countQuery->where('status', 'published')->count();
+        }
+        else if (auth()->user()->nickname == $nickname || auth()->user()->hasRole('admin')
+            || auth()->user()->hasRole('moderator'))
+        {
+            $articles = $query
+                ->orderBy('updated_at', 'desc')
+                ->paginate($perPage);
+
+            $totalItems = $countQuery->count();
         }
 
         $role = $user->roles->first()->name ?? 'Пользователь';
 
-        return view('profile.profile', compact('user', 'articles', 'role'));
+        return view('profile.profile', compact('user', 'articles', 'role', 'totalItems'));
     }
 }

@@ -23,6 +23,6 @@
                 @endforeach
             </ul>
         @endif
-        <x-includes.pagination :items="$articles" />
+        <x-includes.pagination :items="$articles" :totalItems="$totalItems" />
     </x-layouts.content>
 </x-layouts.layout>

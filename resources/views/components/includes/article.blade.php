@@ -9,6 +9,11 @@ $segment2 = request()->segment(2);
         <div class="flex gap-3 text-sm">
             <a href="{{ route('profile', ['nickname' => $article->user->nickname]) }}" class="font-medium hover:text-cyan-600 text-neutral-600">{{ $article->user->nickname }}</a>
             <span class="text-gray-500">{{ $article->created_at->translatedFormat('j M \в H:i') }}</span>
+            @if ($segment2 == $article->id)
+                @can('showStatus', $article)
+                    <span class="text-gray-500">{{ $article->status }}</span>
+                @endcan
+            @endif
         </div>
         @if ($segment2 == $article->id)
             <div class="flex gap-2 text-sm">

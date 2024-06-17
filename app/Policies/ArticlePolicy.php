@@ -63,4 +63,9 @@ class ArticlePolicy
     {
         return $user->hasPermissionTo('delete_articles') || $user->id === $article->user_id;
     }
+
+    public function showStatus(User $user, Article $article): bool
+    {
+        return $user->hasRole('admin') || $user->hasRole('moderator') || $user->id === $article->user_id;
+    }
 }

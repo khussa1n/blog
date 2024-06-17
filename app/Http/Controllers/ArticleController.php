@@ -18,13 +18,19 @@ class ArticleController extends Controller
 
         if ($slug) {
             $category = Category::where('slug', $slug)->firstOrFail();
-            $query->where('category_id', $category->id)->where('status', 'published');
+            $query->where('category_id', $category->id)
+                ->where('status', 'published');
         }
 
-        $perPage = request()->input('per_page', 10);
-        $articles = $query->where('status', 'published')->orderBy('updated_at', 'desc')->paginate($perPage);
+        $totalItems = $query->count();
 
-        return view('articles.index', compact('articles'));
+        $perPage = request()->input('per_page', 10);
+        $articles = $query
+            ->where('status', 'published')
+            ->orderBy('updated_at', 'desc')
+            ->paginate($perPage);
+
+        return view('articles.index', compact('articles','totalItems'));
     }
 
     /**
@@ -53,7 +59,8 @@ class ArticleController extends Controller
         $image_blob = null;
         $image_mime = null;
 
-        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+        if ($request->hasFile('image') && $request->file('image')->isValid())
+        {
             $image = $request->file('image');
             $image_blob = base64_encode(file_get_contents($image->getRealPath()));
             $image_mime = $image->getClientMimeType();
@@ -119,7 +126,8 @@ class ArticleController extends Controller
         $article->status = $request->input('status');
         $article->save();
 
-        return redirect()->route('articles.show', $article)->with('success', 'Статья успешно обновлена!');
+        return redirect()->route('articles.show', $article)
+            ->with('success', 'Статья успешно обновлена!');
     }
 
     public function archive(Article $article)
@@ -127,7 +135,8 @@ class ArticleController extends Controller
         $article->status = 'archived';
         $article->save();
 
-        return redirect()->route('articles.show', $article)->with('success', 'Статья успешно архивирована!');
+        return redirect()->route('articles.show', $article)
+            ->with('success', 'Статья успешно архивирована!');
     }
 
     public function publish(Article $article)
@@ -135,7 +144,8 @@ class ArticleController extends Controller
         $article->status = 'published';
         $article->save();
 
-        return redirect()->route('articles.show', $article)->with('success', 'Статья успешно опубликована!');
+        return redirect()->route('articles.show', $article)
+            ->with('success', 'Статья успешно опубликована!');
     }
 
     /**
@@ -144,6 +154,7 @@ class ArticleController extends Controller
     public function destroy(Article $article)
     {
         $article->delete();
-        return redirect()->route('articles.index')->with('success', 'Статья успешно удалена!');
+        return redirect()->route('articles.index')
+            ->with('success', 'Статья успешно удалена!');
     }
 }

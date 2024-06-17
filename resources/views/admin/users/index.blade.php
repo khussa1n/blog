@@ -58,6 +58,6 @@
                 </tbody>
             </table>
         </div>
-        <x-includes.pagination :items="$users" />
+        <x-includes.pagination :items="$users" :totalItems="$totalItems" />
     </x-layouts.admin>
 </x-layouts.layout>
