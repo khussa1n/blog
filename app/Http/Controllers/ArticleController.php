@@ -16,7 +16,8 @@ class ArticleController extends Controller
     {
         $query = Article::query()->with('user', 'category');
 
-        if ($slug) {
+        if ($slug)
+        {
             $category = Category::where('slug', $slug)->firstOrFail();
             $query->where('category_id', $category->id)
                 ->where('status', 'published');
@@ -111,7 +112,8 @@ class ArticleController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
-        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+        if ($request->hasFile('image') && $request->file('image')->isValid())
+        {
             $image = $request->file('image');
             $image_blob = base64_encode(file_get_contents($image->getRealPath()));
             $image_mime = $image->getClientMimeType();

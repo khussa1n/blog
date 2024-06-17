@@ -1,6 +1,6 @@
 <x-layouts.layout>
     <x-layouts.admin>
-        <div class="">
+        <div class="text-neutral-700">
             <div class="flex flex-col gap-4 p-4 bg-white shadow-md">
                 <h2 class="text-xl font-medium mb-4">Dashboard</h2>
 
